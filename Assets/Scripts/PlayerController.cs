@@ -43,6 +43,9 @@ public class PlayerController : MonoBehaviour
     private Vector2 respawnPoint;
     private CheckpointTextManager checkpointTextManager;
 
+    [Header("移动端UI输入")]
+    public MobileInputUI mobileInputUI;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -88,8 +91,8 @@ public class PlayerController : MonoBehaviour
         // Ground check
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
-        // Movement
-        float moveInput = Input.GetAxisRaw("Horizontal");
+        // Movement（支持移动端UI输入）
+        float moveInput = mobileInputUI != null ? mobileInputUI.horizontalInput : Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
         // Update facing direction
@@ -106,14 +109,16 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Jump
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        // Jump（支持移动端UI输入）
+        bool jumpInput = mobileInputUI != null ? mobileInputUI.jumpPressed : Input.GetButtonDown("Jump");
+        if (jumpInput && isGrounded)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
 
-        // Dash
-        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
+        // Dash（支持移动端UI输入）
+        bool dashInput = mobileInputUI != null ? mobileInputUI.dashPressed : Input.GetKeyDown(KeyCode.LeftShift);
+        if (dashInput && canDash)
         {
             StartDash();
         }
